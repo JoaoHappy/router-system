@@ -33,17 +33,46 @@
          // vai servi para obter a rota
          public function where($request_type, $pattern)
          {
+            switch($request_type)
+            {
+                case 'post':
+                    return $this->findPost($pattern);
+                break;
 
+                case 'get':
+                    return $this->findGet($pattern);
+                break;
+
+                case 'put':
+                    return $this->findPut($pattern);
+                break;
+
+                case 'delete':
+                    return $this->findDelete($pattern);
+                break;
+
+                default:
+                    throw new Exception("Sistema de requisição não implementado");
+                    
+            }
+         }
+
+         protected function parseUri($uri)
+         {
+             /// Vamos adiciona o '/' e filtra o '/' na url
+             return implode('/', array_filter(explode('/', $uri)));
          }
 
          protected function definePattern($pattern)
          {
+             // falta essa parte 
              $pattern = implode('/', array_filter(explode('/', $pattern)));
              return '/^' . str_replace('/', '\/', $pattern) . '$/';
          }
 
         protected function addPost($pattern, $callback)
         {
+
             $this->routes_post[$this->definePattern($pattern)] = $callback;
             return $this;
  
@@ -66,6 +95,69 @@
             $this->routes_delete[$this->definePattern($pattern)] = $callback;
             return $this;
         }
+
+        // encontra requests
+
+        protected function findPost($pattern_sent)
+        {
+            $pattern_sent = $this->parseUri($pattern_sent);
+
+            foreach($this->routes_post as $pattern => $callback)
+            {
+                if(preg_match($pattern, $pattern_sent, $pieces))
+                {
+                    return (object) ['callback' => $callback, 'uri' => $pieces];
+                }
+            }
+
+            return false;
+        }
+
+        protected function findGet($pattern_sent)
+        {
+            $pattern_sent = $this->parseUri($pattern_sent);
+
+            foreach($this->routes_get as $pattern => $callback)
+            {
+                if(preg_match($pattern, $pattern_sent, $pieces))
+                {
+                    return (object) ['callback' => $callback, 'uri' => $pieces];
+                }
+            }
+
+            return false;
+        }
+        
+        protected function findPut($pattern_sent)
+        {
+            $pattern_sent = $this->parseUri($pattern_sent);
+
+            foreach($this->routes_put as $pattern => $callback)
+            {
+                if(preg_match($pattern, $pattern_sent, $pieces))
+                {
+                    return (object) ['callback' => $callback, 'uri' => $pieces];
+                }
+            }
+
+            return false;
+        }
+
+        protected function findDelete($pattern_sent)
+        {
+            $pattern_sent = $this->parseUri($pattern_sent);
+            
+            foreach($this->routes_delete as $pattern => $callback)
+            {
+                if(preg_match($pattern, $pattern_sent, $pieces))
+                {
+                    return (object) ['callback' => $callback, 'uri' => $pieces];
+                }
+            }
+
+            return false;
+        }
+    
     }
 
 ?>

@@ -3,7 +3,7 @@
 error_reporting(E_ALL);
 ini_set('display_errors', true);
  
-require __DIR__ . '/vendor/autoloader.php';
+require __DIR__ . '/vendor/autoload.php';
  
 use Src\Router;
  

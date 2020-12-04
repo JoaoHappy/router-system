@@ -44,6 +44,29 @@
         {
             return $this->route_collection->where($request_type, $pattern);
         }
+
+        protected function dispach($route, $namespace = "App\\")
+        {
+            return $this->dispacher->dispach($route->callback, $route->uri, $namespace);
+        }
+
+        protected function notFound()
+        {
+            return header("HTTP/1.0 404 Not Found", true, 404);
+        }
+
+    
+        public function resolve($request)
+        {
+            $route = $this->find($request->method(), $request->uri());
+
+            if($route)
+            {
+                return $this->dispach($route);
+            }
+
+            return $this->notFound();
+        }
     }
 
 ?>
